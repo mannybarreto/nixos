@@ -44,4 +44,28 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  # Graphics Card:
+  
+  # Enable OpenGL and Vulkan support, including 32-bit for gaming.
+  hardware.graphics.enable = true;
+  hardware.graphics.enable32Bit = true;
+
+  # Load  Nvidia for Xorg.
+  services.xserver.videoDrivers = ["nvidia"];
+  
+  hardware.nvidia = {
+    # Required for newer GPUs.
+    open = true;
+
+    # Critical for Wayland compositors.
+    modesetting.enable = true;
+
+    # Essential for stability, esp with suspend/resume.
+    powerManagement.enable = true;
+   
+    nvidiaSettings = true;
+
+    package = config.boot.kernelPackages.nvidiaPackages.latest;
+  };
 }
