@@ -9,6 +9,7 @@
     mako
     polkit_gnome
     swaybg
+    swww
     wofi
   ];
   fonts.fontconfig.enable = true;
@@ -40,7 +41,7 @@
 
     bind = [
       "$mod, RETURN, exec, wezterm"
-      "$mod, SPACE, exec, wofi"
+      "$mod, SPACE, exec, wofi --show drun"
 
       "$mod, Q, killactive,"
       "$mod, M, exit,"
@@ -95,4 +96,9 @@
       size = 11; 
     };
   };
+
+   wayland.windowManager.hyprland.extraConfig = ''
+     env = XCURSOR_THEME,Bibata-Modern-Classic
+     env = XCURSOR_SIZE,24
+   '';
 }
