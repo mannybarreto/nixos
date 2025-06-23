@@ -68,4 +68,16 @@
 
     package = config.boot.kernelPackages.nvidiaPackages.latest;
   };
+  
+  # Install VA-API driver wrapper for Nvidia.
+  hardware.opengl.extraPackages = with pkgs; [
+    nvidia-vaapi-driver
+  ];
+
+  environment.variables = {
+    LIBVA_DRIVER_NAME = "nvidia";
+    NVD_BACKEND = "direct";
+    WLR_NO_HARDWARE_CURSORS = "1";
+    NIXOS_OZONE_WL = "1";
+  };
 }
