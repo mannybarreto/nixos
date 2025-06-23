@@ -7,11 +7,19 @@
     bibata-cursors
     wezterm
     mako
-    fuzzel
     polkit_gnome
     swaybg
+    wofi
   ];
   fonts.fontconfig.enable = true;
+
+  programs.wofi = {
+    enable = true;
+    settings = {
+      terminal = "wezterm";
+      "show" = "run";
+    };
+  };
 
   programs.wezterm = {
     enable = true;
@@ -32,7 +40,7 @@
 
     bind = [
       "$mod, RETURN, exec, wezterm"
-      "$mod, SPACE, exec, fuzzel"
+      "$mod, SPACE, exec, wofi"
 
       "$mod, Q, killactive,"
       "$mod, M, exit,"
@@ -55,15 +63,15 @@
       "$mod, 8, workspace, 8"
       "$mod, 9, workspace, 9"
 
-      "$mod, 1, movetoworkspace, 1"
-      "$mod, 2, movetoworkspace, 2"
-      "$mod, 3, movetoworkspace, 3"
-      "$mod, 4, movetoworkspace, 4"
-      "$mod, 5, movetoworkspace, 5"
-      "$mod, 6, movetoworkspace, 6"
-      "$mod, 7, movetoworkspace, 7"
-      "$mod, 8, movetoworkspace, 8"
-      "$mod, 9, movetoworkspace, 9"
+      "$mod SHIFT, 1, movetoworkspace, 1"
+      "$mod SHIFT, 2, movetoworkspace, 2"
+      "$mod SHIFT, 3, movetoworkspace, 3"
+      "$mod SHIFT, 4, movetoworkspace, 4"
+      "$mod SHIFT, 5, movetoworkspace, 5"
+      "$mod SHIFT, 6, movetoworkspace, 6"
+      "$mod SHIFT, 7, movetoworkspace, 7"
+      "$mod SHIFT, 8, movetoworkspace, 8"
+      "$mod SHIFT, 9, movetoworkspace, 9"
     ];
 
     # See https://wiki.hyprland.org/Configuring/Monitors
