@@ -9,6 +9,7 @@
     mako
     fuzzel
     polkit_gnome
+    swaybg
   ];
   fonts.fontconfig.enable = true;
 
@@ -24,6 +25,7 @@
   wayland.windowManager.hyprland.settings = {
     "exec-once" = [
       "/usr/lib/polkit-gnome-authentication-agent-1"
+      "swaybg -c  '#000000'"
     ];
 
     "$mod" = "SUPER";
@@ -67,23 +69,22 @@
     # See https://wiki.hyprland.org/Configuring/Monitors
     monitor = ",preferred,auto,1";
 
-   # input = {
-    #  kb_layout = "us";
-    #  follow_mouse = 1;
-    #  touchpad.natural_scroll = true;
-   # };
+    input = {
+      kb_layout = "us";
+      follow_mouse = 1;
+      touchpad.natural_scroll = true;
+    };
+  };
 
-   # gtk = {
-  #    enable = true;
-    #  theme = {
-    #    name = "Bibata-Modern-Classic";
-   #     package = pkgs.bibata-cursors;
-    #  };
-    #  font = {
-    #    name = "JetBrainsMono Nerd Font";
-   #     size = 14;
-  #    };
- #   };
-
+  gtk = {
+    enable = true;
+    cursorTheme = {
+      name = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+    };
+    font = {
+      name = "JetBrainsMono Nerd Font";
+      size = 14; 
+    };
   };
 }
