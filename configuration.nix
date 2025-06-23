@@ -41,9 +41,6 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  # Enable the X11 windowing system
-  services.xserver.enable = true;
-
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -70,6 +67,17 @@
   # };
 
   # List services that you want to enable:
+
+  # Enable the X11 windowing system
+  services.xserver.enable = true;
+
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
 
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
