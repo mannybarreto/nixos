@@ -2,6 +2,7 @@
 
 {
   home.packages = with pkgs; [
+    ungoogled-chromium
     vim
     wget
     git
