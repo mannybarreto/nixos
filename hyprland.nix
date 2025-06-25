@@ -97,8 +97,9 @@
     };
   };
 
-   wayland.windowManager.hyprland.extraConfig = ''
-     env = XCURSOR_THEME,Bibata-Modern-Classic
-     env = XCURSOR_SIZE,24
-   '';
+  wayland.windowManager.hyprland.extraConfig = ''
+    env = XCURSOR_THEME,Bibata-Modern-Classic
+    env = XCURSOR_SIZE,24
+    exec-once = ${./scripts/random-wallpaper.sh}
+  '';
 }
