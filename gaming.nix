@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs; [
     steam-run
     lutris
+    discord-ptb
   ];
 
   programs.steam = {
