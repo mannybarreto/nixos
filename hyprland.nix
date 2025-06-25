@@ -26,10 +26,12 @@
     enable = true;
     extraConfig = ''
       return {
-        enable_wayland = false,
+        enable_wayland = true,
       }
     '';
   };
+
+  programs.swaylock.enable = true;
 
   wayland.windowManager.hyprland.settings = {
     "exec-once" = [

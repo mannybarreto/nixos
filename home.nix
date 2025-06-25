@@ -2,14 +2,18 @@
 
 {
   home.packages = with pkgs; [
+    btop
     chromium
-    vim
-    wget
     git
+    gimp3
+    mpv
     nixd
-    zed-editor
     pamixer
     pavucontrol
+    vim
+    wget
+    yazi
+    zed-editor
   ];
 
   imports = [
