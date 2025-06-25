@@ -4,12 +4,16 @@
   home.packages = with pkgs; [
     btop
     chromium
+    exactaudiocopy
     git
     gimp3
+    grim
+    makemkv
     mpv
     nixd
     pamixer
     pavucontrol
+    slurp
     vim
     wget
     yazi
