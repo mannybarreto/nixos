@@ -4,6 +4,7 @@
 
   environment.systemPackages = with pkgs; [
     steam-run
+    mangohud
     lutris
     discord-ptb
   ];
@@ -14,4 +15,6 @@
     dedicatedServer.openFirewall = true;
     localNetworkGameTransfers.openFirewall = true;
   };
+
+  programs.gamemode.enable = true;
 }

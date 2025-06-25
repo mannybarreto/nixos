@@ -35,7 +35,7 @@
     "exec-once" = [
       "waybar"
       "/usr/lib/polkit-gnome-authentication-agent-1"
-      "swaybg -c  '#000000'"
+      "${./scripts/random-wallpaper.sh}"
     ];
 
     "$mod" = "SUPER";
@@ -49,6 +49,7 @@
       "$mod, V, togglefloating,"
       "$mod, P, pseudo,"
       "$mod, J, togglesplit,"
+      "$mod, F, fullscreen,"
 
       "$mod, L, movefocus, r"
       "$mod, H, movefocus, l"
@@ -101,7 +102,7 @@
   wayland.windowManager.hyprland.extraConfig = ''
     env = XCURSOR_THEME,Bibata-Modern-Classic
     env = XCURSOR_SIZE,24
-    exec-once = ${./scripts/random-wallpaper.sh}
+    windowrulev2 = fullscreen,class:^(steam_app_.*)$
   '';
 
   programs.waybar = {
