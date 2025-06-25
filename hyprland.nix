@@ -27,6 +27,7 @@
     extraConfig = ''
       return {
         enable_wayland = true,
+        color_scheme = "Modus-Vivendi",
       }
     '';
   };
