@@ -8,6 +8,8 @@
     git
     nixd
     zed-editor
+    pamixer
+    pavucontrol
   ];
 
   imports = [
