@@ -18,8 +18,48 @@
     enable = true;
     settings = {
       terminal = "wezterm";
-      "show" = "run";
+      show = "run";
     };
+    # Wofi styling with Modus Vivendi colors
+    style = ''
+      window {
+        background-color: #000000;
+        border: 2px solid #646464;
+        border-radius: 8px;
+      }
+
+      #input {
+        background-color: #1e1e1e;
+        color: #ffffff;
+        border: none;
+        padding: 8px;
+      }
+
+      #inner-box {
+        background-color: #000000;
+      }
+
+      #outer-box {
+        background-color: #000000;
+        padding: 10px;
+      }
+
+      #scroll {
+        background-color: #000000;
+      }
+
+      #text {
+        color: #989898;
+      }
+
+      #entry:selected {
+        background-color: #535353;
+      }
+
+      #entry:selected #text {
+        color: #ffffff;
+      }
+    '';
   };
 
   programs.wezterm = {
@@ -32,7 +72,47 @@
     '';
   };
 
-  programs.swaylock.enable = true;
+  programs.swaylock = {
+    enable = true;
+    # Swaylock configuration with Modus Vivendi colors using swaylock-effects
+    settings = {
+      # Use a solid color background
+      color = "000000";
+      # Or uncomment to use an image
+      # image = "/path/to/your/wallpaper.png";
+      # --scaling stretch
+
+      indicator = true;
+      indicator-radius = 200;
+      indicator-thickness = 20;
+
+      inside-color = "1e1e1e";
+      inside-clear-color = "1e1e1e";
+      inside-ver-color = "1e1e1e";
+      inside-wrong-color = "1e1e1e";
+
+      line-color = "646464";
+      line-clear-color = "44bc44";
+      line-ver-color = "2fafff";
+      line-wrong-color = "ff5f59";
+
+      ring-color = "303030";
+      ring-clear-color = "44bc44";
+      ring-ver-color = "2fafff";
+      ring-wrong-color = "ff5f59";
+
+      key-hl-color = "c6daff";
+      separator-color = "00000000"; # Transparent
+
+      text-color = "ffffff";
+      text-clear-color = "ffffff";
+      text-ver-color = "ffffff";
+      text-wrong-color = "ffffff";
+
+      effect-blur = "7x5";
+      effect-vignette = "0.5:0.5";
+    };
+  };
 
   wayland.windowManager.hyprland.settings = {
     "exec-once" = [
@@ -42,6 +122,19 @@
     ];
 
     "$mod" = "SUPER";
+
+    # Modus Vivendi colors for Hyprland borders
+    general = {
+      "col.active_border" = "rgba(47afffff) rgba(00d3d0ff) 45deg";
+      "col.inactive_border" = "rgba(646464aa)";
+      "border_size" = 2;
+      "gaps_in" = 5;
+      "gaps_out" = 10;
+    };
+
+    decoration = {
+      rounding = 8;
+    };
 
     bind = [
       "$mod, RETURN, exec, wezterm"
@@ -98,8 +191,20 @@
     };
   };
 
+  wayland.windowManager.hyprland.extraConfig = ''
+    env = XCURSOR_THEME,Bibata-Modern-Classic
+    env = XCURSOR_SIZE,24
+    windowrulev2 = fullscreen,class:^(steam_app_.*)$
+  '';
+
   gtk = {
     enable = true;
+    # No official Modus Vivendi GTK theme in nixpkgs.
+    # Consider a similar dark theme like 'Adwaita-dark' or 'Dracula'.
+    theme = {
+      name = "Adwaita-dark";
+      package = pkgs.adwaita-icon-theme; # Adwaita is part of this
+    };
     cursorTheme = {
       name = "Bibata-Modern-Classic";
       package = pkgs.bibata-cursors;
@@ -109,12 +214,6 @@
       size = 11;
     };
   };
-
-  wayland.windowManager.hyprland.extraConfig = ''
-    env = XCURSOR_THEME,Bibata-Modern-Classic
-    env = XCURSOR_SIZE,24
-    windowrulev2 = fullscreen,class:^(steam_app_.*)$
-  '';
 
   programs.waybar = {
     enable = true;
@@ -183,45 +282,52 @@
         };
       };
     };
+    # Waybar styling with Modus Vivendi colors
     style = ''
       * {
-          border: none;
-          font-family: "MesloLGM Nerd Font";
-          font-size: 14px;
-          min-height: 0;
+        border: none;
+        font-family: "MesloLGM Nerd Font";
+        font-size: 14px;
+        min-height: 0;
       }
 
       window#waybar {
-          background-color: rgba(29, 32, 41, 0.7); /* Slightly different background for a new look */
-          border-bottom: 2px solid rgba(100, 114, 125, 0.5);
-          color: #cdd6f4; /* Catppuccin Macchiato Text */
+        background-color: #000000;
+        border-bottom: 2px solid #646464;
+        color: #ffffff;
       }
 
       #workspaces button {
-          padding: 0 8px;
-          background-color: transparent;
-          color: #cdd6f4;
-          border-radius: 4px;
+        padding: 0 8px;
+        background-color: transparent;
+        color: #989898;
+        border-radius: 4px;
       }
 
       #workspaces button.active {
-          background-color: #89b4fa; /* Catppuccin Macchiato Blue */
-          color: #1e1e2e; /* Catppuccin Macchiato Base */
+        background-color: #535353;
+        color: #ffffff;
       }
 
       #workspaces button.special {
-          background-color: #f38ba8; /* Catppuccin Macchiato Red for special workspace */
+        background-color: #feacd0;
+        color: #000000;
       }
 
       #mode {
-          background-color: #f38ba8;
-          color: #1e1e2e;
-          padding: 0 8px;
+        background-color: #2fafff;
+        color: #000000;
+        padding: 0 8px;
       }
 
       #clock, #cpu, #memory, #network, #pulseaudio {
-          padding: 0 10px;
-          margin: 0 2px;
+        padding: 0 10px;
+        margin: 0 2px;
+        color: #c6daff;
+      }
+
+      #pulseaudio.muted {
+        color: #ff5f59;
       }
     '';
   };
