@@ -33,6 +33,7 @@
 
   wayland.windowManager.hyprland.settings = {
     "exec-once" = [
+      "waybar"
       "/usr/lib/polkit-gnome-authentication-agent-1"
       "swaybg -c  '#000000'"
     ];
@@ -93,7 +94,7 @@
     };
     font = {
       name = "JetBrainsMono Nerd Font";
-      size = 11; 
+      size = 11;
     };
   };
 
@@ -102,4 +103,114 @@
     env = XCURSOR_SIZE,24
     exec-once = ${./scripts/random-wallpaper.sh}
   '';
+
+  programs.waybar = {
+    enable = true;
+    settings = {
+      mainBar = {
+        layer = "top";
+        position = "top";
+        height = 30;
+        modules-left = [
+          "hyprland/workspaces"
+          "hyprland/mode"
+        ];
+        modules-center = [ "hyprland/window" ];
+        modules-right = [
+          "pulseaudio"
+          "network"
+          "cpu"
+          "memory"
+          "clock"
+        ];
+
+        "hyprland/workspaces" = {
+          # Use "all-outputs = true;" if you want to see workspaces on all monitors
+          # all-outputs = true;
+          # Use "on-click = "activate";" to switch workspaces by clicking
+          on-click = "activate";
+          # Shows special workspaces like "scratchpads"
+          # persistent-workspaces = { "*": [1, 2, 3, 4, 5] }; # Uncomment to show all workspaces 1-5
+        };
+
+        "hyprland/window" = {
+          max-length = 35;
+          separate-outputs = true; # Show window titles only on the active monitor
+        };
+
+        "clock" = {
+          format = " {:%H:%M}";
+          tooltip-format = "<big>{:%Y-%m-%d}</big>\n<small>{calendar}</small>";
+        };
+
+        "cpu" = {
+          format = " {usage}%";
+        };
+
+        "memory" = {
+          format = " {}%";
+        };
+
+        "network" = {
+          format-wifi = "  {essid}";
+          format-ethernet = " {ifname}";
+          format-disconnected = "⚠ Disconnected";
+        };
+
+        "pulseaudio" = {
+          format = "{icon} {volume}%";
+          format-muted = " Muted";
+          format-icons = {
+            default = [
+              ""
+              ""
+              ""
+            ];
+          };
+          on-click = "pavucontrol";
+        };
+      };
+    };
+    style = ''
+      * {
+          border: none;
+          font-family: "JetBrainsMono Nerd Font";
+          font-size: 14px;
+          min-height: 0;
+      }
+
+      window#waybar {
+          background-color: rgba(29, 32, 41, 0.7); /* Slightly different background for a new look */
+          border-bottom: 2px solid rgba(100, 114, 125, 0.5);
+          color: #cdd6f4; /* Catppuccin Macchiato Text */
+      }
+
+      #workspaces button {
+          padding: 0 8px;
+          background-color: transparent;
+          color: #cdd6f4;
+          border-radius: 4px;
+      }
+
+      #workspaces button.active {
+          background-color: #89b4fa; /* Catppuccin Macchiato Blue */
+          color: #1e1e2e; /* Catppuccin Macchiato Base */
+      }
+
+      #workspaces button.special {
+          background-color: #f38ba8; /* Catppuccin Macchiato Red for special workspace */
+      }
+
+      #mode {
+          background-color: #f38ba8;
+          color: #1e1e2e;
+          padding: 0 8px;
+      }
+
+      #clock, #cpu, #memory, #network, #pulseaudio {
+          padding: 0 10px;
+          margin: 0 2px;
+      }
+    '';
+  };
 }
