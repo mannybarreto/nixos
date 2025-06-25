@@ -123,7 +123,7 @@
   system.stateVersion = "25.05"; # Did you read the comment?
 
   fonts.packages = with pkgs; [
-    pkgs.nerd-fonts.jetbrains-mono
+    nerd-fonts.meslo-lg
   ];
   fonts.fontconfig.enable = true;
 }

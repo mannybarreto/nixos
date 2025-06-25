@@ -54,6 +54,14 @@
       "$mod, J, togglesplit,"
       "$mod, F, fullscreen,"
 
+      # Screenshot a window
+      "$mod, PRINT, exec, grim -g \"$(hyprctl activewindow -j | jaq -r '.at[0],.at[1],.size[0],.size[1]' | sed 's/\\n/ /g')\" - | wl-copy"
+      # Screenshot a selected region
+      "$mod SHIFT, PRINT, exec, grim -g \"$(slurp)\" - | wl-copy"
+
+      # In wayland.windowManager.hyprland.settings.bind
+      "$mod, L, exec, swaylock"
+
       "$mod, L, movefocus, r"
       "$mod, H, movefocus, l"
       "$mod, K, movefocus, u"
@@ -81,7 +89,7 @@
     ];
 
     # See https://wiki.hyprland.org/Configuring/Monitors
-    monitor = ",preferred,auto,1";
+    monitor = "DP-4,2560x1440@144,auto,1";
 
     input = {
       kb_layout = "us";
@@ -97,7 +105,7 @@
       package = pkgs.bibata-cursors;
     };
     font = {
-      name = "JetBrainsMono Nerd Font";
+      name = "MesloLGM Nerd Font";
       size = 11;
     };
   };
@@ -163,7 +171,7 @@
 
         "pulseaudio" = {
           format = "{icon} {volume}%";
-          format-muted = " Muted";
+          format-muted = "  Muted";
           format-icons = {
             default = [
               ""
@@ -178,7 +186,7 @@
     style = ''
       * {
           border: none;
-          font-family: "JetBrainsMono Nerd Font";
+          font-family: "MesloLGM Nerd Font";
           font-size: 14px;
           min-height: 0;
       }
