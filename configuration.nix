@@ -2,13 +2,17 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
-  imports =
-    [ 
-      ./gaming.nix
-    ];
+  imports = [
+    ./gaming.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -50,16 +54,22 @@
 
   # Define a user account. Don't forget to set a password with `passwd`.
   users.users.mannybarreto = {
-   isNormalUser = true;
-   description = "Manny Barreto";
-   extraGroups = ["networkmanager" "wheel"];
-   packages = with pkgs; []; 
+    isNormalUser = true;
+    description = "Manny Barreto";
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
+    packages = with pkgs; [ ];
   };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  nix.settings.experimental-features = ["nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -90,6 +100,11 @@
     pulse.enable = true;
   };
 
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
+  };
+
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
@@ -111,4 +126,4 @@
     pkgs.nerd-fonts.jetbrains-mono
   ];
   fonts.fontconfig.enable = true;
-}	
+}
