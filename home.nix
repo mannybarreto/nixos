@@ -6,6 +6,7 @@
     vim
     wget
     git
+    zed-editor
   ];
 
   imports = [
