@@ -114,6 +114,9 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
+  programs.fish.enable = true;
+  users.defaultUserShell = pkgs.fish;
+
   services.ollama = {
     enable = true;
     acceleration = "cuda";
