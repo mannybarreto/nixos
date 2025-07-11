@@ -5,7 +5,6 @@
     btop
     chromium
     exactaudiocopy
-    git
     gimp3
     grim
     makemkv
@@ -14,14 +13,13 @@
     pamixer
     pavucontrol
     slurp
-    vim
     wget
     yazi
-    zed-editor
   ];
 
   imports = [
     ./hyprland.nix
+    ./development.nix
   ];
 
   programs.home-manager.enable = true;
