@@ -12,6 +12,7 @@
 {
   imports = [
     ./gaming.nix
+    # ./env-secrets.nix
   ];
 
   # Bootloader.
@@ -105,6 +106,83 @@
     extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
   };
 
+  environment.systemPackages = with pkgs; [
+    nfs-utils
+  ];
+
+  # --- SOPS ---
+  sops.defaultSopsFile = ./secrets/env_vars;
+  sops.age.keyFile = "/var/lib/sops-nix/key.txt"; # It's assumed this file is generated and secrets are encrypted for it.
+  sops.age.generateKey = false;
+  sops.secrets.data = { };
+
+  systemd.services.create-nas-env-file = {
+    description = "Create environment file for NAS mounts";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "sops-nix.service" ];
+    before = [
+      "mnt-movies.mount"
+      "mnt-music.mount"
+    ];
+    script = ''
+      set -euo pipefail
+      mkdir -p /run/sysconfig
+      echo $(<${config.sops.secrets.data.path}) > /run/sysconfig/nas-env
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
+
+  # Make secrets available as environment variables in shells
+  environment.etc."profile.d/secrets.sh" = {
+    mode = "0755";
+    text = ''
+      if [ -f "/run/sysconfig/nas-env" ]; then
+        set -a
+        source "/run/sysconfig/nas-env"
+        set +a
+      fi
+    '';
+  };
+
+  # --- Mount Network Drives ---
+  systemd.mounts = [
+    {
+      where = "/mnt/movies";
+      what = "\${HS_NAS}:/data/Movies";
+      type = "nfs";
+      options = "defaults,rw,noauto,x-systemd.automount,x-systemd.idle-timeout=600";
+      mountConfig = {
+        EnvironmentFile = "/run/sysconfig/nas-env";
+      };
+      requires = [ "create-nas-env-file.service" ];
+      after = [ "create-nas-env-file.service" ];
+    }
+    {
+      where = "/mnt/music";
+      what = "\${HS_NAS}:/data/Music";
+      type = "nfs";
+      options = "defaults,rw,noauto,x-systemd.automount,x-systemd.idle-timeout=600";
+      mountConfig = {
+        EnvironmentFile = "/run/sysconfig/nas-env";
+      };
+      requires = [ "create-nas-env-file.service" ];
+      after = [ "create-nas-env-file.service" ];
+    }
+  ];
+
+  # --- NFS Firewall Rules ---
+  networking.firewall.allowedTCPPorts = [ 2049 ];
+  networking.firewall.allowedUDPPorts = [ 2049 ];
+
+  # --- Fish ---
+  programs.fish = {
+    enable = true;
+  };
+  users.defaultUserShell = pkgs.fish;
+
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
@@ -113,9 +191,6 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
-
-  programs.fish.enable = true;
-  users.defaultUserShell = pkgs.fish;
 
   services.ollama = {
     enable = true;

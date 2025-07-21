@@ -1,0 +1,9 @@
+keys:
+  - &host age12d5ccx4qemxzd4gjv25uw8f8ff4ay6rj4c72s8p2cz3thgzwn3hs8t7a4m
+  - &mannybarreto age15thwy0yv3jwxp496mqhsercuzrfauvgcee0gd8urssl27zug44eqjss689
+creation_rules:
+  - path_regex: secrets/*
+    key_groups:
+    - age:
+      - *host
+      - *mannybarreto

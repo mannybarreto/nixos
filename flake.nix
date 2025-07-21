@@ -11,6 +11,10 @@
       url = "git+https://github.com/hyprwm/Hyprland";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -19,6 +23,7 @@
       nixpkgs,
       home-manager,
       hyprland,
+      sops-nix,
       ...
     }@inputs:
     {
@@ -26,6 +31,8 @@
         system = "x86_64-linux";
         specialArgs = { inherit inputs; };
         modules = [
+          sops-nix.nixosModules.sops
+
           ./hardware-configuration.nix
           ./configuration.nix
 
@@ -34,6 +41,9 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.mannybarreto = import ./home.nix;
+            home-manager.sharedModules = [
+              sops-nix.homeManagerModules.sops
+            ];
           }
         ];
       };
