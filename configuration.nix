@@ -12,7 +12,6 @@
 {
   imports = [
     ./gaming.nix
-    # ./env-secrets.nix
   ];
 
   # Bootloader.
