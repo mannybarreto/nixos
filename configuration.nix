@@ -52,6 +52,8 @@
     variant = "";
   };
 
+  users.groups.secret-readers = { };
+
   # Define a user account. Don't forget to set a password with `passwd`.
   users.users.mannybarreto = {
     isNormalUser = true;
@@ -59,6 +61,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "secret-readers"
     ];
     packages = with pkgs; [ ];
   };
@@ -109,68 +112,75 @@
     nfs-utils
   ];
 
-  # --- SOPS ---
+  # --- Sops ---
   sops.defaultSopsFile = ./secrets/env_vars;
-  sops.age.keyFile = "/var/lib/sops-nix/key.txt"; # It's assumed this file is generated and secrets are encrypted for it.
+  sops.age.keyFile = "/var/lib/sops-nix/key.txt";
   sops.age.generateKey = false;
-  sops.secrets.data = { };
 
-  systemd.services.create-nas-env-file = {
-    description = "Create environment file for NAS mounts";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "sops-nix.service" ];
-    before = [
-      "mnt-movies.mount"
-      "mnt-music.mount"
+  # Define individual secrets
+  sops.secrets.data = {
+    group = "secret-readers";
+    mode = "0440";
+  };
+
+  # For bash
+  programs.bash.interactiveShellInit = ''
+    if [[ -r "${config.sops.secrets.data.path}" ]] && groups | grep -q secret-readers; then
+      set -a
+      source "${config.sops.secrets.data.path}"
+      set +a
+    fi
+  '';
+
+  # For fish (if enabled)
+  programs.fish.interactiveShellInit = ''
+    if test -r "${config.sops.secrets.data.path}"; and groups | grep -q secret-readers
+      while read -l line
+        if string match -q -r '^[^#].*=' $line
+          set -l parts (string split -m 1 '=' $line)
+          if test (count $parts) -eq 2
+            set -gx $parts[1] $parts[2]
+          end
+        end
+      end < "${config.sops.secrets.data.path}"
+    end
+  '';
+
+  systemd.services."mount-nfs-shares" = {
+    description = "Mount NFS shares";
+    after = [
+      "network-online.target"
+      "sops-nix.service"
     ];
-    script = ''
-      set -euo pipefail
-      mkdir -p /run/sysconfig
-      echo $(<${config.sops.secrets.data.path}) > /run/sysconfig/nas-env
-    '';
+    wants = [
+      "network-online.target"
+      "sops-nix.service"
+    ];
+    wantedBy = [ "multi-user.target" ]; # Start at boot
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      SupplementaryGroups = [ "secret-readers" ];
     };
-  };
+    path = [
+      pkgs.util-linux
+      pkgs.nfs-utils
+    ];
+    script = ''
+      source ${config.sops.secrets.data.path}
 
-  # Make secrets available as environment variables in shells
-  environment.etc."profile.d/secrets.sh" = {
-    mode = "0755";
-    text = ''
-      if [ -f "/run/sysconfig/nas-env" ]; then
-        set -a
-        source "/run/sysconfig/nas-env"
-        set +a
-      fi
+      # Create mount points if they don't exist
+      mkdir -p /mnt/movies /mnt/music
+
+      # Mount the shares
+      mount -t nfs -o defaults,rw $HS_NAS:/data/Movies /mnt/movies
+      mount -t nfs -o defaults,rw $HS_NAS:/data/Music /mnt/music
+    '';
+    preStop = ''
+      umount /mnt/movies || true
+      umount /mnt/music || true
     '';
   };
-
-  # --- Mount Network Drives ---
-  systemd.mounts = [
-    {
-      where = "/mnt/movies";
-      what = "\${HS_NAS}:/data/Movies";
-      type = "nfs";
-      options = "defaults,rw,noauto,x-systemd.automount,x-systemd.idle-timeout=600";
-      mountConfig = {
-        EnvironmentFile = "/run/sysconfig/nas-env";
-      };
-      requires = [ "create-nas-env-file.service" ];
-      after = [ "create-nas-env-file.service" ];
-    }
-    {
-      where = "/mnt/music";
-      what = "\${HS_NAS}:/data/Music";
-      type = "nfs";
-      options = "defaults,rw,noauto,x-systemd.automount,x-systemd.idle-timeout=600";
-      mountConfig = {
-        EnvironmentFile = "/run/sysconfig/nas-env";
-      };
-      requires = [ "create-nas-env-file.service" ];
-      after = [ "create-nas-env-file.service" ];
-    }
-  ];
 
   # --- NFS Firewall Rules ---
   networking.firewall.allowedTCPPorts = [ 2049 ];
