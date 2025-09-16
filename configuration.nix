@@ -12,6 +12,7 @@
 {
   imports = [
     ./gaming.nix
+    ./audiophile.nix
   ];
 
   # Bootloader.

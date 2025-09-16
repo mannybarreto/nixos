@@ -4,7 +4,6 @@
   home.packages = with pkgs; [
     btop
     chromium
-    exactaudiocopy
     gimp3
     grim
     makemkv
