@@ -118,7 +118,7 @@
     "exec-once" = [
       "waybar"
       "/usr/lib/polkit-gnome-authentication-agent-1"
-      "${./scripts/random-wallpaper.sh}"
+      "${../../scripts/random-wallpaper.sh}"
     ];
 
     "$mod" = "SUPER";

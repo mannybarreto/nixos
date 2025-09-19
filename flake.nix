@@ -17,35 +17,49 @@
     };
   };
 
-  outputs =
+  outputs = { self, nixpkgs, home-manager, sops-nix, ... }@inputs:
+    let
+      system = "x86_64-linux";
+      user = "mannybarreto";
+    in
     {
-      self,
-      nixpkgs,
-      home-manager,
-      hyprland,
-      sops-nix,
-      ...
-    }@inputs:
-    {
-      nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
-        modules = [
-          sops-nix.nixosModules.sops
+      nixosConfigurations = {
+        "nixos" = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs; };
+          modules = [
+            # Import the main host configuration
+            ./hosts/default/configuration.nix
 
-          ./hardware-configuration.nix
-          ./configuration.nix
+            # Sops module for system-wide secrets
+            sops-nix.nixosModules.sops
 
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.users.mannybarreto = import ./home.nix;
-            home-manager.sharedModules = [
-              sops-nix.homeManagerModules.sops
-            ];
-          }
-        ];
+            # Home Manager setup
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.${user} = import ./users/${user}/home.nix;
+              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.sharedModules = [
+                # Sops module for user secrets
+                sops-nix.homeManagerModules.sops
+              ];
+            }
+          ];
+        };
+      };
+
+      # Standalone home-manager configuration
+      homeConfigurations = {
+        "${user}" = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.${system};
+          extraSpecialArgs = { inherit inputs; };
+          modules = [
+            ./users/${user}/home.nix
+            sops-nix.homeManagerModules.sops
+          ];
+        };
       };
     };
 }

@@ -11,8 +11,9 @@
 
 {
   imports = [
-    ./gaming.nix
-    ./audiophile.nix
+    ./hardware-configuration.nix
+    ../../modules/nixos/gaming.nix
+    ../../modules/nixos/audiophile.nix
   ];
 
   # Bootloader.
@@ -114,7 +115,7 @@
   ];
 
   # --- Sops ---
-  sops.defaultSopsFile = ./secrets/env_vars;
+  sops.defaultSopsFile = ../../secrets/env_vars;
   sops.age.keyFile = "/var/lib/sops-nix/key.txt";
   sops.age.generateKey = false;
 

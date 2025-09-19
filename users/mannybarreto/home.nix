@@ -18,7 +18,7 @@
 
   imports = [
     ./hyprland.nix
-    ./development.nix
+    ../../modules/home-manager/development.nix
   ];
 
   xdg.mimeApps = {
