@@ -7,6 +7,7 @@
 {
   home.packages = with pkgs; [
     age
+    gemini-cli
     git
     sops
     vim
