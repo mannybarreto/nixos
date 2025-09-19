@@ -24,12 +24,12 @@
     in
     {
       nixosConfigurations = {
-        "nixos" = nixpkgs.lib.nixosSystem {
+        "battlestation" = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = { inherit inputs; };
           modules = [
             # Import the main host configuration
-            ./hosts/default/configuration.nix
+            ./hosts/battlestation/configuration.nix
 
             # Sops module for system-wide secrets
             sops-nix.nixosModules.sops
