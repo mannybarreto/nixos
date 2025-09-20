@@ -21,6 +21,7 @@
     let
       system = "x86_64-linux";
       user = "mannybarreto";
+      theme = ./modules/themes/earthy-mid-century;
     in
     {
       nixosConfigurations = {
@@ -40,7 +41,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.${user} = import ./users/${user}/home.nix;
-              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.extraSpecialArgs = { inherit inputs theme; };
               home-manager.sharedModules = [
                 # Sops module for user secrets
                 sops-nix.homeManagerModules.sops
@@ -54,7 +55,7 @@
       homeConfigurations = {
         "${user}" = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.${system};
-          extraSpecialArgs = { inherit inputs; };
+          extraSpecialArgs = { inherit inputs theme; };
           modules = [
             ./users/${user}/home.nix
             sops-nix.homeManagerModules.sops

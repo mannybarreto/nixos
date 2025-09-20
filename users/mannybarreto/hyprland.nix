@@ -1,10 +1,44 @@
-{ pkgs, ... }:
+{ pkgs, theme, ... }:
 
+let
+  theme-attrs = (import theme { inherit pkgs; }).config;
+  # Helper to remove '#' from hex colors for Hyprland
+  rgb = hex: builtins.substring 1 6 hex;
+
+  # Helper to format a Nix list of strings into a Lua table string
+  toLuaTable =
+    colors:
+    let
+      quoted = map (c: ''"${c}"'') colors;
+    in
+    "{ ${pkgs.lib.concatStringsSep ", " quoted} }";
+
+  ansiColors = with theme-attrs.colors; [
+    black.lighter
+    red
+    green
+    yellow
+    blue
+    magenta
+    cyan
+    white.darker
+  ];
+
+  brightColors = with theme-attrs.colors; [
+    wood.medium
+    red
+    green
+    yellow
+    blue
+    magenta
+    cyan
+    white.base
+  ];
+in
 {
   wayland.windowManager.hyprland.enable = true;
 
   home.packages = with pkgs; [
-    bibata-cursors
     wezterm
     mako
     polkit_gnome
@@ -23,41 +57,41 @@
     # Wofi styling with Modus Vivendi colors
     style = ''
       window {
-        background-color: #000000;
-        border: 2px solid #646464;
+        background-color: ${theme-attrs.colors.background};
+        border: 2px solid ${theme-attrs.colors.wood.dark};
         border-radius: 8px;
       }
 
       #input {
-        background-color: #1e1e1e;
-        color: #ffffff;
+        background-color: ${theme-attrs.colors.black.lighter};
+        color: ${theme-attrs.colors.foreground};
         border: none;
         padding: 8px;
       }
 
       #inner-box {
-        background-color: #000000;
+        background-color: ${theme-attrs.colors.background};
       }
 
       #outer-box {
-        background-color: #000000;
+        background-color: ${theme-attrs.colors.background};
         padding: 10px;
       }
 
       #scroll {
-        background-color: #000000;
+        background-color: ${theme-attrs.colors.background};
       }
 
       #text {
-        color: #989898;
+        color: ${theme-attrs.colors.foreground};
       }
 
       #entry:selected {
-        background-color: #535353;
+        background-color: ${theme-attrs.colors.wood.medium};
       }
 
       #entry:selected #text {
-        color: #ffffff;
+        color: ${theme-attrs.colors.white.base};
       }
     '';
   };
@@ -67,7 +101,19 @@
     extraConfig = ''
       return {
         enable_wayland = true,
-        color_scheme = "Modus-Vivendi",
+        color_scheme = "Earthy Mid-Century",
+        color_schemes = {
+          ["Earthy Mid-Century"] = {
+            background = "${theme-attrs.colors.background}",
+            foreground = "${theme-attrs.colors.foreground}",
+            cursor_bg = "${theme-attrs.colors.cursor}",
+            cursor_fg = "${theme-attrs.colors.background}",
+            selection_bg = "${theme-attrs.colors.wood.dark}",
+            selection_fg = "${theme-attrs.colors.foreground}",
+            ansi = ${toLuaTable ansiColors},
+            brights = ${toLuaTable brightColors},
+          },
+        },
       }
     '';
   };
@@ -77,7 +123,7 @@
     # Swaylock configuration with Modus Vivendi colors using swaylock-effects
     settings = {
       # Use a solid color background
-      color = "000000";
+      color = "${rgb theme-attrs.colors.background}";
       # Or uncomment to use an image
       # image = "/path/to/your/wallpaper.png";
       # --scaling stretch
@@ -86,28 +132,28 @@
       indicator-radius = 200;
       indicator-thickness = 20;
 
-      inside-color = "1e1e1e";
-      inside-clear-color = "1e1e1e";
-      inside-ver-color = "1e1e1e";
-      inside-wrong-color = "1e1e1e";
+      inside-color = "${rgb theme-attrs.colors.black.lighter}";
+      inside-clear-color = "${rgb theme-attrs.colors.black.lighter}";
+      inside-ver-color = "${rgb theme-attrs.colors.black.lighter}";
+      inside-wrong-color = "${rgb theme-attrs.colors.black.lighter}";
 
-      line-color = "646464";
-      line-clear-color = "44bc44";
-      line-ver-color = "2fafff";
-      line-wrong-color = "ff5f59";
+      line-color = "${rgb theme-attrs.colors.wood.dark}";
+      line-clear-color = "${rgb theme-attrs.colors.green}";
+      line-ver-color = "${rgb theme-attrs.colors.blue}";
+      line-wrong-color = "${rgb theme-attrs.colors.red}";
 
-      ring-color = "303030";
-      ring-clear-color = "44bc44";
-      ring-ver-color = "2fafff";
-      ring-wrong-color = "ff5f59";
+      ring-color = "${rgb theme-attrs.colors.wood.medium}";
+      ring-clear-color = "${rgb theme-attrs.colors.green}";
+      ring-ver-color = "${rgb theme-attrs.colors.blue}";
+      ring-wrong-color = "${rgb theme-attrs.colors.red}";
 
-      key-hl-color = "c6daff";
+      key-hl-color = "${rgb theme-attrs.colors.yellow}";
       separator-color = "00000000"; # Transparent
 
-      text-color = "ffffff";
-      text-clear-color = "ffffff";
-      text-ver-color = "ffffff";
-      text-wrong-color = "ffffff";
+      text-color = "${rgb theme-attrs.colors.foreground}";
+      text-clear-color = "${rgb theme-attrs.colors.foreground}";
+      text-ver-color = "${rgb theme-attrs.colors.foreground}";
+      text-wrong-color = "${rgb theme-attrs.colors.foreground}";
 
       effect-blur = "7x5";
       effect-vignette = "0.5:0.5";
@@ -125,8 +171,9 @@
 
     # Modus Vivendi colors for Hyprland borders
     general = {
-      "col.active_border" = "rgba(47afffff) rgba(00d3d0ff) 45deg";
-      "col.inactive_border" = "rgba(646464aa)";
+      "col.active_border" =
+        "rgba(${rgb theme-attrs.colors.red}ff) rgba(${rgb theme-attrs.colors.green}ff) 45deg";
+      "col.inactive_border" = "rgba(${rgb theme-attrs.colors.wood.dark}aa)";
       "border_size" = 2;
       "gaps_in" = 5;
       "gaps_out" = 10;
@@ -192,28 +239,10 @@
   };
 
   wayland.windowManager.hyprland.extraConfig = ''
-    env = XCURSOR_THEME,Bibata-Modern-Classic
-    env = XCURSOR_SIZE,24
+    env = XCURSOR_THEME,${theme-attrs.cursor.name}
+    env = XCURSOR_SIZE,${toString theme-attrs.cursor.size}
     windowrulev2 = fullscreen,class:^(steam_app_.*)$
   '';
-
-  gtk = {
-    enable = true;
-    # No official Modus Vivendi GTK theme in nixpkgs.
-    # Consider a similar dark theme like 'Adwaita-dark' or 'Dracula'.
-    theme = {
-      name = "Adwaita-dark";
-      package = pkgs.adwaita-icon-theme; # Adwaita is part of this
-    };
-    cursorTheme = {
-      name = "Bibata-Modern-Classic";
-      package = pkgs.bibata-cursors;
-    };
-    font = {
-      name = "MesloLGM Nerd Font";
-      size = 11;
-    };
-  };
 
   programs.waybar = {
     enable = true;
@@ -282,52 +311,76 @@
         };
       };
     };
-    # Waybar styling with Modus Vivendi colors
     style = ''
       * {
         border: none;
-        font-family: "MesloLGM Nerd Font";
-        font-size: 14px;
+        font-family: "${theme-attrs.fonts.monospace.family}";
+        font-size: ${toString theme-attrs.fonts.monospace.size}px;
         min-height: 0;
       }
 
       window#waybar {
-        background-color: #000000;
-        border-bottom: 2px solid #646464;
-        color: #ffffff;
+        background-color: ${theme-attrs.colors.black.lighter};
+        border-bottom: 3px solid ${theme-attrs.colors.wood.dark};
+        color: ${theme-attrs.colors.foreground};
+      }
+
+      #workspaces {
+        background-color: ${theme-attrs.colors.background};
+        margin: 2px 0px 2px 2px;
+        border-radius: 5px;
       }
 
       #workspaces button {
         padding: 0 8px;
+        margin: 2px;
         background-color: transparent;
-        color: #989898;
+        color: ${theme-attrs.colors.foreground};
         border-radius: 4px;
+        transition: all 0.3s ease;
+      }
+
+      #workspaces button:hover {
+        background-color: ${theme-attrs.colors.wood.light};
+        color: ${theme-attrs.colors.black.base};
       }
 
       #workspaces button.active {
-        background-color: #535353;
-        color: #ffffff;
+        background-color: ${theme-attrs.colors.red};
+        color: ${theme-attrs.colors.white.base};
       }
 
       #workspaces button.special {
-        background-color: #feacd0;
-        color: #000000;
+        background-color: ${theme-attrs.colors.yellow};
+        color: ${theme-attrs.colors.background};
       }
 
       #mode {
-        background-color: #2fafff;
-        color: #000000;
+        background-color: ${theme-attrs.colors.blue};
+        color: ${theme-attrs.colors.background};
         padding: 0 8px;
+        margin: 2px 0px;
+        border-radius: 5px;
+      }
+
+      #window {
+        color: ${theme-attrs.colors.foreground};
+        background-color: ${theme-attrs.colors.background};
+        padding: 0 10px;
+        margin: 2px 0px;
+        border-radius: 5px;
       }
 
       #clock, #cpu, #memory, #network, #pulseaudio {
         padding: 0 10px;
-        margin: 0 2px;
-        color: #c6daff;
+        margin: 2px 2px 2px 0px;
+        color: ${theme-attrs.colors.foreground};
+        background-color: ${theme-attrs.colors.background};
+        border-radius: 5px;
       }
 
       #pulseaudio.muted {
-        color: #ff5f59;
+        color: ${theme-attrs.colors.red};
       }
     '';
   };

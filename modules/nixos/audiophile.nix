@@ -5,6 +5,8 @@
 
   # 1. Install necessary packages for audiophile ripping
   environment.systemPackages = with pkgs; [
+    cmus # Music player
+
     whipper # The core CD ripper
     cdrdao # A required backend for whipper for TOC analysis
     flac # To ensure the FLAC command-line tools are available
