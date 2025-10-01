@@ -167,7 +167,7 @@ in
       "${../../scripts/random-wallpaper.sh}"
     ];
 
-    "$mod" = "SUPER";
+    "$mod" = "ALT";
 
     # Modus Vivendi colors for Hyprland borders
     general = {
@@ -191,7 +191,7 @@ in
       "$mod, M, exit,"
       "$mod, V, togglefloating,"
       "$mod, P, pseudo,"
-      "$mod, J, togglesplit,"
+      "$mod, S, togglesplit,"
       "$mod, F, fullscreen,"
 
       # Screenshot a window
@@ -199,24 +199,20 @@ in
       # Screenshot a selected region
       "$mod SHIFT, PRINT, exec, grim -g \"$(slurp)\" - | wl-copy"
 
-      # In wayland.windowManager.hyprland.settings.bind
-      "$mod, L, exec, swaylock"
+      # Lock screen
+      "$mod, ESC, exec, swaylock"
 
-      "$mod, L, movefocus, r"
-      "$mod, H, movefocus, l"
-      "$mod, K, movefocus, u"
-      "$mod, J, movefocus, d"
+      # Move focus with arrow keys
+      "$mod, left, movefocus, l"
+      "$mod, right, movefocus, r"
+      "$mod, up, movefocus, u"
+      "$mod, down, movefocus, d"
 
-      "$mod, 1, workspace, 1"
-      "$mod, 2, workspace, 2"
-      "$mod, 3, workspace, 3"
-      "$mod, 4, workspace, 4"
-      "$mod, 5, workspace, 5"
-      "$mod, 6, workspace, 6"
-      "$mod, 7, workspace, 7"
-      "$mod, 8, workspace, 8"
-      "$mod, 9, workspace, 9"
+      # Switch workspaces with H and L
+      "$mod, H, workspace, e-1"
+      "$mod, L, workspace, e+1"
 
+      # Move active window to a workspace with numbers
       "$mod SHIFT, 1, movetoworkspace, 1"
       "$mod SHIFT, 2, movetoworkspace, 2"
       "$mod SHIFT, 3, movetoworkspace, 3"
@@ -226,6 +222,21 @@ in
       "$mod SHIFT, 7, movetoworkspace, 7"
       "$mod SHIFT, 8, movetoworkspace, 8"
       "$mod SHIFT, 9, movetoworkspace, 9"
+
+      # Move active window to next/previous workspace with H and L
+      "$mod SHIFT, H, movetoworkspace, e-1"
+      "$mod SHIFT, L, movetoworkspace, e+1"
+
+      # Switch workspaces with numbers
+      "$mod, 1, workspace, 1"
+      "$mod, 2, workspace, 2"
+      "$mod, 3, workspace, 3"
+      "$mod, 4, workspace, 4"
+      "$mod, 5, workspace, 5"
+      "$mod, 6, workspace, 6"
+      "$mod, 7, workspace, 7"
+      "$mod, 8, workspace, 8"
+      "$mod, 9, workspace, 9"
     ];
 
     # See https://wiki.hyprland.org/Configuring/Monitors
