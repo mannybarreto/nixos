@@ -25,6 +25,8 @@ in
     ./hyprland.nix
     ../../modules/home-manager/development.nix
     ../../modules/home-manager/godot.nix
+    ../../modules/home-manager/jetbrains.nix
+    ../../modules/home-manager/unreal.nix
   ];
 
   xdg.mimeApps = {
@@ -43,8 +45,6 @@ in
   programs.mc = {
     enable = true;
   };
-
-  
 
   programs.home-manager.enable = true;
 

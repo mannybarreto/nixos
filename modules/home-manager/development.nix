@@ -11,7 +11,14 @@
     git
     sops
     vim
+    vscode
     zed-editor
+
+    # Build and development tools
+    cmake
+    ninja
+    python3
+    nodejs
   ];
 
   sops = {
@@ -20,6 +27,11 @@
   };
 
   programs.fish = {
+    enable = true;
+  };
+
+  # Configure git for development
+  programs.git = {
     enable = true;
   };
 
