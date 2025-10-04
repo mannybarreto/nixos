@@ -1,5 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
+let
+  theme = import ../../modules/themes/earthy-mid-century/default.nix { inherit pkgs; };
+  colors = theme.config.colors;
+in
 {
   home.packages = with pkgs; [
     btop
@@ -8,12 +12,13 @@
     grim
     makemkv
     mpv
+    nerd-fonts.jetbrains-mono
     nixd
     pamixer
     pavucontrol
     slurp
     wget
-    yazi
+    mc
   ];
 
   imports = [
@@ -24,14 +29,21 @@
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "inode/directory" = [ "yazi.desktop" ];
+      "inode/directory" = [ "mc.desktop" ];
     };
   };
 
-  xdg.desktopEntries.yazi = {
-    name = "Yazi";
-    exec = "wezterm start --cwd %f -- yazi"; # Adjust as needed
+  xdg.desktopEntries.mc = {
+    name = "Midnight Commander";
+    exec = "mc %f";
+    terminal = true;
   };
+
+  programs.mc = {
+    enable = true;
+  };
+
+  
 
   programs.home-manager.enable = true;
 

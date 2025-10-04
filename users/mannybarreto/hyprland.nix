@@ -43,10 +43,36 @@ in
     mako
     polkit_gnome
     swaybg
+    swayidle
     swww
     wofi
   ];
   fonts.fontconfig.enable = true;
+
+  services.swayidle = {
+    enable = true;
+    events = [
+      {
+        event = "before-sleep";
+        command = "swaylock -f";
+      }
+      {
+        event = "lock";
+        command = "swaylock -f";
+      }
+    ];
+    timeouts = [
+      {
+        timeout = 300;
+        command = "swaylock -f";
+      }
+      {
+        timeout = 600;
+        command = "hyprctl dispatch dpms off";
+        resumeCommand = "hyprctl dispatch dpms on";
+      }
+    ];
+  };
 
   programs.wofi = {
     enable = true;
@@ -181,6 +207,11 @@ in
 
     decoration = {
       rounding = 8;
+      blur = {
+        enabled = true;
+        size = 3;
+        passes = 1;
+      };
     };
 
     bind = [
@@ -239,6 +270,11 @@ in
       "$mod, 9, workspace, 9"
     ];
 
+    bindl = [
+      # Lid switch
+      ",switch:Lid Switch, exec, swaylock"
+    ];
+
     # See https://wiki.hyprland.org/Configuring/Monitors
     monitor = "DP-4,2560x1440@144,auto,1";
 
@@ -253,6 +289,8 @@ in
     env = XCURSOR_THEME,${theme-attrs.cursor.name}
     env = XCURSOR_SIZE,${toString theme-attrs.cursor.size}
     windowrulev2 = fullscreen,class:^(steam_app_.*)$
+    layerrule = blur, waybar
+    layerrule = ignorezero, waybar
   '';
 
   programs.waybar = {
@@ -268,6 +306,7 @@ in
         ];
         modules-center = [ "hyprland/window" ];
         modules-right = [
+          "tray"
           "pulseaudio"
           "network"
           "cpu"
@@ -276,12 +315,28 @@ in
         ];
 
         "hyprland/workspaces" = {
+          format = "{name}";
+          format-icons = {
+            "1" = "";
+            "2" = "";
+            "3" = "";
+            "4" = "";
+            "5" = "";
+            "urgent" = "";
+            "focused" = "";
+            "default" = "";
+          };
           # Use "all-outputs = true;" if you want to see workspaces on all monitors
           # all-outputs = true;
           # Use "on-click = "activate";" to switch workspaces by clicking
           on-click = "activate";
           # Shows special workspaces like "scratchpads"
           # persistent-workspaces = { "*": [1, 2, 3, 4, 5] }; # Uncomment to show all workspaces 1-5
+        };
+
+        "tray" = {
+          "icon-size" = 16;
+          "spacing" = 10;
         };
 
         "hyprland/window" = {
@@ -325,13 +380,13 @@ in
     style = ''
       * {
         border: none;
-        font-family: "${theme-attrs.fonts.monospace.family}";
+        font-family: "${theme-attrs.fonts.monospace.family}", "Font Awesome 6 Free";
         font-size: ${toString theme-attrs.fonts.monospace.size}px;
         min-height: 0;
       }
 
       window#waybar {
-        background-color: ${theme-attrs.colors.black.lighter};
+        background-color: rgba(0,0,0,0.5);
         border-bottom: 3px solid ${theme-attrs.colors.wood.dark};
         color: ${theme-attrs.colors.foreground};
       }
@@ -382,7 +437,7 @@ in
         border-radius: 5px;
       }
 
-      #clock, #cpu, #memory, #network, #pulseaudio {
+      #clock, #cpu, #memory, #network, #pulseaudio, #tray {
         padding: 0 10px;
         margin: 2px 2px 2px 0px;
         color: ${theme-attrs.colors.foreground};
