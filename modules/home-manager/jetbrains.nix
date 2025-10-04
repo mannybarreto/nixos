@@ -10,7 +10,6 @@
     jetbrains.rider
 
     # C++ Development Tools
-    gcc
     clang
     lldb
     gdb
