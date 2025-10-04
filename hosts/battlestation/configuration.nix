@@ -18,6 +18,7 @@
     ../../modules/nixos/audiophile.nix
     ../../modules/nixos/nfs.nix
     ../../modules/nixos/godot.nix
+    ../../modules/nixos/unreal.nix
   ];
 
   # Bootloader.
