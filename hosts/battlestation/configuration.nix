@@ -17,6 +17,7 @@
     ../../modules/nixos/gaming.nix
     ../../modules/nixos/audiophile.nix
     ../../modules/nixos/nfs.nix
+    ../../modules/nixos/godot.nix
   ];
 
   # Bootloader.

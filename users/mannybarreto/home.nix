@@ -24,6 +24,7 @@ in
   imports = [
     ./hyprland.nix
     ../../modules/home-manager/development.nix
+    ../../modules/home-manager/godot.nix
   ];
 
   xdg.mimeApps = {
