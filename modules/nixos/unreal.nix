@@ -37,9 +37,178 @@ in
     # --- JetBrains Rider Launcher for Unreal ---
     (pkgs.writeShellScriptBin "unreal-rider" ''
       #!/usr/bin/env bash
-      echo "Launching JetBrains Rider for Unreal Engine..."
-      # Environment is set via home-manager, this just launches the binary
-      exec rider "$@"
+      set -euo pipefail
+
+      show_help() {
+          echo "Unreal Rider - JetBrains Rider launcher for Unreal Engine projects"
+          echo "Usage: $0 [project.uproject|solution.sln] [options]"
+          echo ""
+          echo "This script handles project file generation through distrobox before launching Rider."
+          echo ""
+          echo "Options:"
+          echo "  --generate-only    Only generate project files, don't launch Rider"
+          echo "  --help             Show this help message"
+      }
+
+      # Parse arguments
+      PROJECT_FILE=""
+      GENERATE_ONLY=false
+
+      for arg in "$@"; do
+          case "$arg" in
+              --help|-h)
+                  show_help
+                  exit 0
+                  ;;
+              --generate-only)
+                  GENERATE_ONLY=true
+                  ;;
+              *.uproject|*.sln)
+                  PROJECT_FILE="$arg"
+                  ;;
+          esac
+      done
+
+      # If a .uproject file was provided, generate project files first
+      if [[ -n "$PROJECT_FILE" ]] && [[ "$PROJECT_FILE" == *.uproject ]]; then
+          if [[ ! -f "$PROJECT_FILE" ]]; then
+              echo "Error: Project file not found: $PROJECT_FILE"
+              exit 1
+          fi
+
+          echo "Generating project files for $PROJECT_FILE..."
+
+          # Get absolute path to project file
+          PROJECT_FILE_ABS=$(realpath "$PROJECT_FILE")
+          PROJECT_DIR=$(dirname "$PROJECT_FILE_ABS")
+          PROJECT_NAME=$(basename "$PROJECT_FILE_ABS" .uproject)
+
+          # Generate project files inside distrobox
+          distrobox enter ${containerName} -- bash -c "
+              cd '${ueEnginePath}'
+              if [[ -f 'Engine/Build/BatchFiles/Linux/GenerateProjectFiles.sh' ]]; then
+                  ./Engine/Build/BatchFiles/Linux/GenerateProjectFiles.sh \
+                      -Rider -Automated -OnlyPrimaryProjectFile -Minimize -NoMutex \
+                      -Log=/tmp/UBT_GPF_$$.txt \
+                      '$PROJECT_FILE_ABS'
+              else
+                  echo 'Error: GenerateProjectFiles.sh not found in Unreal Engine directory'
+                  exit 1
+              fi
+          "
+
+          if [[ $? -ne 0 ]]; then
+              echo "Error: Failed to generate project files"
+              exit 1
+          fi
+
+          echo "Project files generated successfully"
+
+          # Update PROJECT_FILE to the generated .sln file
+          SOLUTION_FILE="$PROJECT_DIR/$PROJECT_NAME.sln"
+          if [[ -f "$SOLUTION_FILE" ]]; then
+              PROJECT_FILE="$SOLUTION_FILE"
+          else
+              echo "Warning: Expected solution file not found at $SOLUTION_FILE"
+          fi
+      fi
+
+      # Exit if only generating
+      if [[ "$GENERATE_ONLY" == "true" ]]; then
+          exit 0
+      fi
+
+      # Set up environment for Rider
+      export UE_ENGINE_LOCATION="${ueEnginePath}"
+      export UE_PROJECTS_DIR="${ueProjectsDir}"
+
+      # Launch Rider
+      echo "Launching JetBrains Rider..."
+      if [[ -n "$PROJECT_FILE" ]]; then
+          exec rider "$PROJECT_FILE"
+      else
+          exec rider "$@"
+      fi
+    '')
+
+    # --- GenerateProjectFiles wrapper for Rider ---
+    (pkgs.writeShellScriptBin "GenerateProjectFiles.sh" ''
+      #!/usr/bin/env bash
+      # This wrapper allows Rider to call GenerateProjectFiles.sh through distrobox
+
+      # Pass all arguments to the actual GenerateProjectFiles.sh inside distrobox
+      exec distrobox enter ${containerName} -- bash -c "
+          cd '${ueEnginePath}'
+          ./Engine/Build/BatchFiles/Linux/GenerateProjectFiles.sh $*
+      "
+    '')
+
+    # --- Rider Configuration Helper for Unreal Engine ---
+    (pkgs.writeShellScriptBin "rider-configure-unreal" ''
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      echo "Configuring JetBrains Rider for Unreal Engine development..."
+
+      # Find Rider config directory
+      RIDER_CONFIG_DIR="$HOME/.config/JetBrains"
+      RIDER_DIRS=($(find "$RIDER_CONFIG_DIR" -maxdepth 1 -name "Rider*" -type d 2>/dev/null | sort -V))
+
+      if [ ''${#RIDER_DIRS[@]} -eq 0 ]; then
+          echo "Error: No Rider configuration directory found."
+          echo "Please run Rider at least once before running this script."
+          exit 1
+      fi
+
+      # Use the latest Rider version
+      RIDER_DIR="''${RIDER_DIRS[-1]}"
+      echo "Using Rider configuration: $RIDER_DIR"
+
+      # Create options directory
+      mkdir -p "$RIDER_DIR/options"
+
+      # Configure Unreal Engine paths
+      cat > "$RIDER_DIR/options/unreal-engine.xml" << EOF
+      <application>
+        <component name="UnrealEngineSettings">
+          <option name="engineRootPath" value="${ueEnginePath}" />
+          <option name="generateProjectFilesPath" value="$(which GenerateProjectFiles.sh)" />
+          <option name="unrealBuildToolPath" value="${ueEnginePath}/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" />
+        </component>
+      </application>
+      EOF
+
+      # Set up code style for Unreal Engine
+      cat > "$RIDER_DIR/options/codeStyleSettings.xml" << EOF
+      <application>
+        <component name="CodeStyleSettingsManager">
+          <option name="PER_PROJECT_SETTINGS">
+            <value>
+              <option name="LINE_SEPARATOR" value="&#10;" />
+              <option name="RIGHT_MARGIN" value="120" />
+              <CppCodeStyleSettings>
+                <option name="INDENT_PREPROCESSOR_DIRECTIVES" value="2" />
+                <option name="INDENT_VISIBILITY_SPECIFIERS" value="false" />
+                <option name="NAMESPACE_INDENTATION" value="All" />
+              </CppCodeStyleSettings>
+              <Indentation>
+                <option name="USE_TAB_CHARACTER" value="true" />
+                <option name="TAB_SIZE" value="4" />
+              </Indentation>
+            </value>
+          </option>
+        </component>
+      </application>
+      EOF
+
+      echo "✓ Rider configuration complete!"
+      echo ""
+      echo "To use Rider with Unreal Engine projects:"
+      echo "1. Open a .uproject file with: unreal-rider MyGame.uproject"
+      echo "2. Or generate project files first: unreal-rider --generate-only MyGame.uproject"
+      echo "3. Then open the generated .sln file in Rider"
+      echo ""
+      echo "Note: The GenerateProjectFiles.sh wrapper is now available system-wide"
     '')
 
     # --- Unreal Build Helper ---
