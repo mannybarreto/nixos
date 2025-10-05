@@ -9,6 +9,7 @@
     age
     gemini-cli
     git
+    jujutsu
     sops
     vim
     vscode

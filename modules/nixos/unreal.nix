@@ -30,7 +30,7 @@ in
       mkdir -p "${ueProjectsDir}"
 
       distrobox enter ${containerName} -- bash -c "
-        export SDL_VIDEODRIVER=wayland
+        export SDL_VIDEODRIVER=x11
         export VK_ICD_FILENAMES=/run/host/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
         export LD_LIBRARY_PATH=/run/host/run/opengl-driver/lib:\$LD_LIBRARY_PATH
 
@@ -304,7 +304,7 @@ in
               if [ ! -f "$PROJECT_FILE" ]; then echo "Error: Project file not found."; exit 1; fi
               echo "Launching $PROJECT_FILE with GDB..."
               distrobox enter ${containerName} -- bash -c "
-                  export SDL_VIDEODRIVER=wayland
+                  export SDL_VIDEODRIVER=x11
                   export VK_ICD_FILENAMES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
                           export LD_LIBRARY_PATH=/run/opengl-driver/lib:$LD_LIBRARY_PATH                  gdb --args ${ueEnginePath}/Engine/Binaries/Linux/UnrealEditor \\"$PROJECT_FILE\\" -vulkan
               "
