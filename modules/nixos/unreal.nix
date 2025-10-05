@@ -25,13 +25,32 @@ in
     (pkgs.writeShellScriptBin "unreal" ''
       #!/usr/bin/env bash
       echo "Launching Unreal Editor..."
-      distrobox enter ${containerName} -- bash -c '
+
+      # Ensure projects directory exists
+      mkdir -p "${ueProjectsDir}"
+
+      distrobox enter ${containerName} -- bash -c "
         export SDL_VIDEODRIVER=wayland
         export VK_ICD_FILENAMES=/run/host/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
-        export LD_LIBRARY_PATH=/run/host/run/opengl-driver/lib:$LD_LIBRARY_PATH
-        cd ${ueEnginePath}/Engine/Binaries/Linux/
-        ./UnrealEditor -vulkan "$@"
-      ' -- "$@"
+        export LD_LIBRARY_PATH=/run/host/run/opengl-driver/lib:\$LD_LIBRARY_PATH
+
+        # Set Unreal Engine paths to use distrobox directories
+        export UE_INSTALL_LOCATION='${ueEnginePath}'
+        export UNREAL_ENGINE_PATH='${ueEnginePath}'
+
+        # Configure default directories for Unreal
+        mkdir -p \"\$HOME/distrobox/unreal/UnrealEngine\"
+        mkdir -p \"\$HOME/distrobox/unreal/Library\"
+
+        # Set environment to redirect Unreal's default paths
+        export UE_USER_PROJECT_DIR='${ueProjectsDir}'
+        export UE_USER_LIBRARY_DIR=\"\$HOME/distrobox/unreal/Library\"
+        export UE_USER_LOG_DIR=\"\$HOME/distrobox/unreal/UnrealEngine/Logs\"
+        export UE_USER_SAVED_DIR=\"\$HOME/distrobox/unreal/UnrealEngine/Saved\"
+
+        cd '${ueEnginePath}/Engine/Binaries/Linux/'
+        ./UnrealEditor -vulkan \"\$@\"
+      " -- "$@"
     '')
 
     # --- JetBrains Rider Launcher for Unreal ---
