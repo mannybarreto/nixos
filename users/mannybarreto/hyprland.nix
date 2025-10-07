@@ -193,7 +193,8 @@ in
       "${../../scripts/random-wallpaper.sh}"
     ];
 
-    "$mod" = "ALT";
+    "$mod" = "ALT"; # For window management (AeroSpace style)
+    "$super" = "SUPER"; # For OS commands (macOS style)
 
     # Modus Vivendi colors for Hyprland borders
     general = {
@@ -215,50 +216,52 @@ in
     };
 
     bind = [
-      "$mod, RETURN, exec, wezterm"
-      "$mod, SPACE, exec, wofi --show drun"
+      # OS/System Commands (Super key - macOS style)
+      "$super, RETURN, exec, wezterm" # Terminal (Cmd+Return)
+      "$super, SPACE, exec, wofi --show drun" # App launcher (Cmd+Space like Spotlight)
+      "$super, Q, killactive," # Quit app (Cmd+Q)
+      "$super, W, killactive," # Close window (Cmd+W alternative)
+      "$super SHIFT, Q, exit," # Quit Hyprland (Cmd+Shift+Q)
+      "$super, L, exec, swaylock" # Lock screen (Cmd+L)
 
-      "$mod, Q, killactive,"
-      "$mod, M, exit,"
-      "$mod, V, togglefloating,"
-      "$mod, P, pseudo,"
-      "$mod, S, togglesplit,"
-      "$mod, F, fullscreen,"
+      # Screenshot commands (macOS style)
+      "$super SHIFT, 3, exec, grim - | wl-copy" # Full screenshot (Cmd+Shift+3)
+      "$super SHIFT, 4, exec, grim -g \"$(slurp)\" - | wl-copy" # Area screenshot (Cmd+Shift+4)
+      "$super SHIFT, 5, exec, grim -g \"$(hyprctl activewindow -j | jaq -r '.at[0],.at[1],.size[0],.size[1]' | sed 's/\\n/ /g')\" - | wl-copy" # Window screenshot (Cmd+Shift+5)
 
-      # Screenshot a window
-      "$mod, PRINT, exec, grim -g \"$(hyprctl activewindow -j | jaq -r '.at[0],.at[1],.size[0],.size[1]' | sed 's/\\n/ /g')\" - | wl-copy"
-      # Screenshot a selected region
-      "$mod SHIFT, PRINT, exec, grim -g \"$(slurp)\" - | wl-copy"
+      # Window Management (Alt key - AeroSpace style)
+      "$mod, V, togglefloating," # Toggle floating
+      "$mod, F, fullscreen," # Fullscreen
+      "$mod, P, pseudo," # Pseudo tiling
+      "$mod, S, togglesplit," # Toggle split direction
+      "$mod, TAB, cyclenext," # Alt+Tab window switching
+      "$mod SHIFT, TAB, cyclenext, prev" # Alt+Shift+Tab reverse
 
-      # Lock screen
-      "$mod, ESC, exec, swaylock"
+      # Focus movement with vim keys (AeroSpace style)
+      "$mod, H, movefocus, l" # Focus left
+      "$mod, J, movefocus, d" # Focus down
+      "$mod, K, movefocus, u" # Focus up
+      "$mod, L, movefocus, r" # Focus right
 
-      # Move focus with arrow keys
+      # Focus movement with arrow keys (alternative)
       "$mod, left, movefocus, l"
-      "$mod, right, movefocus, r"
-      "$mod, up, movefocus, u"
       "$mod, down, movefocus, d"
+      "$mod, up, movefocus, u"
+      "$mod, right, movefocus, r"
 
-      # Switch workspaces with H and L
-      "$mod, H, workspace, e-1"
-      "$mod, L, workspace, e+1"
+      # Window movement with vim keys
+      "$mod SHIFT, H, movewindow, l" # Move window left
+      "$mod SHIFT, J, movewindow, d" # Move window down
+      "$mod SHIFT, K, movewindow, u" # Move window up
+      "$mod SHIFT, L, movewindow, r" # Move window right
 
-      # Move active window to a workspace with numbers
-      "$mod SHIFT, 1, movetoworkspace, 1"
-      "$mod SHIFT, 2, movetoworkspace, 2"
-      "$mod SHIFT, 3, movetoworkspace, 3"
-      "$mod SHIFT, 4, movetoworkspace, 4"
-      "$mod SHIFT, 5, movetoworkspace, 5"
-      "$mod SHIFT, 6, movetoworkspace, 6"
-      "$mod SHIFT, 7, movetoworkspace, 7"
-      "$mod SHIFT, 8, movetoworkspace, 8"
-      "$mod SHIFT, 9, movetoworkspace, 9"
+      # Window resizing
+      "$mod CTRL, H, resizeactive, -50 0" # Resize left
+      "$mod CTRL, L, resizeactive, 50 0" # Resize right
+      "$mod CTRL, K, resizeactive, 0 -50" # Resize up
+      "$mod CTRL, J, resizeactive, 0 50" # Resize down
 
-      # Move active window to next/previous workspace with H and L
-      "$mod SHIFT, H, movetoworkspace, e-1"
-      "$mod SHIFT, L, movetoworkspace, e+1"
-
-      # Switch workspaces with numbers
+      # Workspace switching (AeroSpace style)
       "$mod, 1, workspace, 1"
       "$mod, 2, workspace, 2"
       "$mod, 3, workspace, 3"
@@ -268,6 +271,37 @@ in
       "$mod, 7, workspace, 7"
       "$mod, 8, workspace, 8"
       "$mod, 9, workspace, 9"
+      "$mod, 0, workspace, 10"
+
+      # Move window to workspace
+      "$mod SHIFT, 1, movetoworkspace, 1"
+      "$mod SHIFT, 2, movetoworkspace, 2"
+      "$mod SHIFT, 3, movetoworkspace, 3"
+      "$mod SHIFT, 4, movetoworkspace, 4"
+      "$mod SHIFT, 5, movetoworkspace, 5"
+      "$mod SHIFT, 6, movetoworkspace, 6"
+      "$mod SHIFT, 7, movetoworkspace, 7"
+      "$mod SHIFT, 8, movetoworkspace, 8"
+      "$mod SHIFT, 9, movetoworkspace, 9"
+      "$mod SHIFT, 0, movetoworkspace, 10"
+
+      # Navigate workspaces with brackets (AeroSpace style)
+      "$mod, bracketleft, workspace, e-1" # Previous workspace
+      "$mod, bracketright, workspace, e+1" # Next workspace
+      "$mod SHIFT, bracketleft, movetoworkspace, e-1" # Move to previous workspace
+      "$mod SHIFT, bracketright, movetoworkspace, e+1" # Move to next workspace
+
+      # Additional macOS-like bindings
+      "$super, comma, exec, wezterm start -- nvim ~/.config/hypr/hyprland.conf" # Preferences (Cmd+,)
+      "$super, M, exec, hyprctl dispatch fullscreen 1" # Minimize (Cmd+M)
+      "$super, H, exec, hyprctl dispatch minimize" # Hide (Cmd+H)
+    ];
+
+    # Mouse bindings (macOS-style)
+    bindm = [
+      "$super, mouse:272, movewindow" # Super + Left Mouse to move window (Cmd+drag on macOS)
+      "$super, mouse:273, resizewindow" # Super + Right Mouse to resize window
+      "$mod, mouse:272, resizewindow" # Alt + Left Mouse to resize (AeroSpace alternative)
     ];
 
     bindl = [

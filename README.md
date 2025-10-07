@@ -19,3 +19,17 @@ The configuration is broken down into the following directories:
         -   `hyprland.nix`: Specific configuration for the Hyprland window manager.
 -   `secrets`: Contains sensitive data that is encrypted with sops.
 -   `scripts`: Contains useful scripts.
+
+## Keybinding Philosophy
+
+This configuration uses a **macOS/AeroSpace-inspired keybinding scheme** for Hyprland:
+
+- **Super (⌘) key**: Used for OS/system commands (like macOS Command key)
+  - Application launching, screenshots, system controls
+  - Examples: `Super+Space` for app launcher (like Spotlight), `Super+Q` to quit
+
+- **Alt (⌥) key**: Used for window management (like AeroSpace WM)
+  - Window focus, movement, resizing, workspace navigation
+  - Examples: `Alt+H/J/K/L` for focus movement, `Alt+1-9` for workspace switching
+
+This approach provides a familiar experience for macOS users while maintaining the powerful tiling capabilities of Hyprland. See [KEYBINDINGS.md](KEYBINDINGS.md) for a complete reference.
