@@ -178,7 +178,7 @@ The configuration sets these environment variables:
 - `UE_PROJECTS_DIR` - Default projects directory
 - `UE_INSTALL_LOCATION` - Engine installation path
 - `UNREAL_ENGINE_PATH` - Alternative engine path variable
-- `SDL_VIDEODRIVER` - Set to Wayland for graphics
+- `SDL_VIDEODRIVER` - Set to x11 for graphics
 - `VK_ICD_FILENAMES` - Vulkan driver configuration
 
 ## Troubleshooting

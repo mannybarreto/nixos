@@ -49,7 +49,7 @@ in
         export UE_USER_SAVED_DIR=\"\$HOME/distrobox/unreal/UnrealEngine/Saved\"
 
         cd '${ueEnginePath}/Engine/Binaries/Linux/'
-        ./UnrealEditor -vulkan \"\$@\"
+        ./UnrealEditor -vulkan "$@"
       " -- "$@"
     '')
 
@@ -146,7 +146,8 @@ in
       if [[ -n "$PROJECT_FILE" ]]; then
           exec rider "$PROJECT_FILE"
       else
-          exec rider "$@"
+          show_help
+          exit 1
       fi
     '')
 

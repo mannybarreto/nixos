@@ -16,4 +16,18 @@
     UE_PROJECTS_DIR = "/home/${config.home.username}/distrobox/unreal/Projects";
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";
   };
+
+  xdg.desktopEntries = {
+    unreal = {
+      name = "Unreal Editor";
+      comment = "Launch the Unreal Engine Editor";
+      exec = "unreal";
+      icon = "unreal-engine";
+      categories = [
+        "Development"
+        "X-GameDevelopment"
+      ];
+      startupNotify = true;
+    };
+  };
 }
