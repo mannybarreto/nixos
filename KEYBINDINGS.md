@@ -9,7 +9,10 @@ This configuration follows macOS and AeroSpace patterns:
 | Keybinding | Action | Description |
 |------------|--------|-------------|
 | `Super + Return` | Open Terminal | Launch WezTerm terminal |
-| `Super + Space` | App Launcher | Open Wofi application launcher (like Spotlight) |
+| `Super + Space` | App Launcher | Open Wofi application launcher with icons (like Spotlight) |
+| `Super + Alt + Space` | Command Runner | Run arbitrary commands |
+| `Super + /` | Window Switcher | Visual window switcher with app icons |
+| `Super + X` | Power Menu | System power options (lock, logout, shutdown, etc.) |
 | `Super + Q` | Quit Application | Close the active window |
 | `Super + W` | Close Window | Alternative close command |
 | `Super + Shift + Q` | Quit Hyprland | Exit the window manager |
@@ -40,8 +43,8 @@ This configuration follows macOS and AeroSpace patterns:
 | `Alt + ↓` | Focus Down | Alternative with arrow keys |
 | `Alt + ↑` | Focus Up | Alternative with arrow keys |
 | `Alt + →` | Focus Right | Alternative with arrow keys |
-| `Alt + Tab` | Cycle Next | Cycle through windows forward |
-| `Alt + Shift + Tab` | Cycle Previous | Cycle through windows backward |
+| `Alt + Tab` | Window Switcher | Visual window switcher with icons and workspace info |
+| `Alt + Shift + Tab` | Quick Cycle | Quick cycle through windows backward |
 
 ### Window Movement
 
@@ -112,6 +115,8 @@ This configuration intentionally differs from typical Linux window managers:
 System & Apps (Super/⌘)
 ├── Terminal:     Super + Return
 ├── Launcher:     Super + Space
+├── Window List:  Super + /
+├── Power Menu:   Super + X
 ├── Quit:         Super + Q
 └── Lock:         Super + L
 

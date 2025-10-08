@@ -46,6 +46,10 @@ in
     swayidle
     swww
     wofi
+    jq # Needed for window switcher script
+    grim # For screenshots
+    slurp # For area selection
+    wl-clipboard # For clipboard operations
   ];
   fonts.fontconfig.enable = true;
 
@@ -78,46 +82,106 @@ in
     enable = true;
     settings = {
       terminal = "wezterm";
-      show = "run";
+      show = "drun";
+      width = 600;
+      height = 400;
+      always_parse_args = true;
+      show_all = false;
+      print_command = true;
+      layer = "overlay";
+      insensitive = true;
+      prompt = "";
+      columns = 1;
+      allow_markup = true;
+      allow_images = true;
+      image_size = 24;
+      hide_scroll = false;
+      no_actions = false;
+      sort_order = "alphabetical";
+      gtk_dark = true;
+      filter_rate = 100;
+      location = "center";
     };
-    # Wofi styling with Modus Vivendi colors
+    # Wofi styling matching waybar's earthy mid-century aesthetic
     style = ''
+      * {
+        font-family: "${theme-attrs.fonts.monospace.family}", "Font Awesome 6 Free";
+        font-size: ${toString theme-attrs.fonts.monospace.size}px;
+        border: none;
+      }
+
       window {
-        background-color: ${theme-attrs.colors.background};
-        border: 2px solid ${theme-attrs.colors.wood.dark};
-        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.8);
+        border: 3px solid ${theme-attrs.colors.wood.dark};
+        border-radius: 5px;
+        color: ${theme-attrs.colors.foreground};
       }
 
       #input {
-        background-color: ${theme-attrs.colors.black.lighter};
+        background-color: ${theme-attrs.colors.background};
         color: ${theme-attrs.colors.foreground};
-        border: none;
-        padding: 8px;
+        border-radius: 5px;
+        padding: 8px 12px;
+        margin: 8px;
+        font-size: ${toString theme-attrs.fonts.monospace.size}px;
+      }
+
+      #input:focus {
+        border: 2px solid ${theme-attrs.colors.wood.medium};
+        margin: 6px;
       }
 
       #inner-box {
-        background-color: ${theme-attrs.colors.background};
+        background-color: transparent;
+        margin: 4px;
       }
 
       #outer-box {
-        background-color: ${theme-attrs.colors.background};
-        padding: 10px;
+        background-color: transparent;
+        margin: 4px;
       }
 
       #scroll {
-        background-color: ${theme-attrs.colors.background};
+        margin: 0 4px;
+        background-color: transparent;
       }
 
-      #text {
-        color: ${theme-attrs.colors.foreground};
+      #entry {
+        background-color: transparent;
+        padding: 8px 12px;
+        margin: 2px 4px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+      }
+
+      #entry:hover {
+        background-color: ${theme-attrs.colors.wood.light};
+        color: ${theme-attrs.colors.black.base};
       }
 
       #entry:selected {
-        background-color: ${theme-attrs.colors.wood.medium};
+        background-color: ${theme-attrs.colors.red};
+        color: ${theme-attrs.colors.white.base};
       }
 
-      #entry:selected #text {
-        color: ${theme-attrs.colors.white.base};
+      #text {
+        color: inherit;
+        margin-left: 8px;
+      }
+
+      #entry image {
+        margin-right: 8px;
+      }
+
+      /* Scrollbar styling to match theme */
+      scrollbar {
+        width: 6px;
+        background-color: ${theme-attrs.colors.black.lighter};
+      }
+
+      scrollbar:handle {
+        background-color: ${theme-attrs.colors.wood.dark};
+        border-radius: 3px;
       }
     '';
   };
@@ -146,43 +210,53 @@ in
 
   programs.swaylock = {
     enable = true;
-    # Swaylock configuration with Modus Vivendi colors using swaylock-effects
+    # Swaylock configuration with earthy mid-century theme
     settings = {
-      # Use a solid color background
-      color = "${rgb theme-attrs.colors.background}";
-      # Or uncomment to use an image
-      # image = "/path/to/your/wallpaper.png";
-      # --scaling stretch
+      # Dark background matching waybar
+      color = "000000";
 
+      # Clean indicator design
       indicator = true;
-      indicator-radius = 200;
-      indicator-thickness = 20;
+      indicator-radius = 100;
+      indicator-thickness = 12;
 
-      inside-color = "${rgb theme-attrs.colors.black.lighter}";
-      inside-clear-color = "${rgb theme-attrs.colors.black.lighter}";
-      inside-ver-color = "${rgb theme-attrs.colors.black.lighter}";
-      inside-wrong-color = "${rgb theme-attrs.colors.black.lighter}";
+      # Consistent with waybar background colors
+      inside-color = "${rgb theme-attrs.colors.background}";
+      inside-clear-color = "${rgb theme-attrs.colors.background}";
+      inside-ver-color = "${rgb theme-attrs.colors.background}";
+      inside-wrong-color = "${rgb theme-attrs.colors.background}";
 
+      # Subtle line colors
       line-color = "${rgb theme-attrs.colors.wood.dark}";
-      line-clear-color = "${rgb theme-attrs.colors.green}";
-      line-ver-color = "${rgb theme-attrs.colors.blue}";
-      line-wrong-color = "${rgb theme-attrs.colors.red}";
+      line-clear-color = "${rgb theme-attrs.colors.wood.dark}";
+      line-ver-color = "${rgb theme-attrs.colors.wood.dark}";
+      line-wrong-color = "${rgb theme-attrs.colors.wood.dark}";
 
-      ring-color = "${rgb theme-attrs.colors.wood.medium}";
+      # Ring matches waybar active states
+      ring-color = "${rgb theme-attrs.colors.wood.dark}";
       ring-clear-color = "${rgb theme-attrs.colors.green}";
-      ring-ver-color = "${rgb theme-attrs.colors.blue}";
+      ring-ver-color = "${rgb theme-attrs.colors.wood.medium}";
       ring-wrong-color = "${rgb theme-attrs.colors.red}";
 
-      key-hl-color = "${rgb theme-attrs.colors.yellow}";
+      key-hl-color = "${rgb theme-attrs.colors.wood.light}";
       separator-color = "00000000"; # Transparent
 
       text-color = "${rgb theme-attrs.colors.foreground}";
       text-clear-color = "${rgb theme-attrs.colors.foreground}";
       text-ver-color = "${rgb theme-attrs.colors.foreground}";
-      text-wrong-color = "${rgb theme-attrs.colors.foreground}";
+      text-wrong-color = "${rgb theme-attrs.colors.white.base}";
 
-      effect-blur = "7x5";
-      effect-vignette = "0.5:0.5";
+      # Minimal effects for cleaner look
+      effect-blur = "5x3";
+      effect-vignette = "0.2:0.2";
+
+      # Additional clean design elements
+      bs-hl-color = "${rgb theme-attrs.colors.red}";
+      caps-lock-key-hl-color = "${rgb theme-attrs.colors.yellow}";
+      caps-lock-bs-hl-color = "${rgb theme-attrs.colors.yellow}";
+
+      font = "${theme-attrs.fonts.monospace.family}";
+      font-size = "${toString theme-attrs.fonts.monospace.size}";
     };
   };
 
@@ -196,21 +270,20 @@ in
     "$mod" = "ALT"; # For window management (AeroSpace style)
     "$super" = "SUPER"; # For OS commands (macOS style)
 
-    # Modus Vivendi colors for Hyprland borders
+    # Earthy mid-century colors for Hyprland borders
     general = {
-      "col.active_border" =
-        "rgba(${rgb theme-attrs.colors.red}ff) rgba(${rgb theme-attrs.colors.green}ff) 45deg";
-      "col.inactive_border" = "rgba(${rgb theme-attrs.colors.wood.dark}aa)";
-      "border_size" = 2;
-      "gaps_in" = 5;
-      "gaps_out" = 10;
+      "col.active_border" = "rgba(${rgb theme-attrs.colors.red}ee)";
+      "col.inactive_border" = "rgba(${rgb theme-attrs.colors.wood.dark}88)";
+      "border_size" = 3;
+      "gaps_in" = 4;
+      "gaps_out" = 8;
     };
 
     decoration = {
-      rounding = 8;
+      rounding = 5;
       blur = {
         enabled = true;
-        size = 3;
+        size = 2;
         passes = 1;
       };
     };
@@ -218,11 +291,14 @@ in
     bind = [
       # OS/System Commands (Super key - macOS style)
       "$super, RETURN, exec, wezterm" # Terminal (Cmd+Return)
-      "$super, SPACE, exec, wofi --show drun" # App launcher (Cmd+Space like Spotlight)
+      "$super, SPACE, exec, wofi --show drun --allow-images --allow-markup --prompt 'Launch App'" # App launcher (Cmd+Space like Spotlight)
       "$super, Q, killactive," # Quit app (Cmd+Q)
       "$super, W, killactive," # Close window (Cmd+W alternative)
       "$super SHIFT, Q, exit," # Quit Hyprland (Cmd+Shift+Q)
       "$super, L, exec, swaylock" # Lock screen (Cmd+L)
+      "$super, X, exec, ${../../scripts/wofi-powermenu.sh}" # Power menu (Cmd+X)
+      "$super, slash, exec, ${../../scripts/wofi-window-switcher.sh}" # Window switcher (Cmd+/)
+      "$super ALT, SPACE, exec, wofi --show run --prompt 'Run Command'" # Command runner
 
       # Screenshot commands (macOS style)
       "$super SHIFT, 3, exec, grim - | wl-copy" # Full screenshot (Cmd+Shift+3)
@@ -234,8 +310,8 @@ in
       "$mod, F, fullscreen," # Fullscreen
       "$mod, P, pseudo," # Pseudo tiling
       "$mod, S, togglesplit," # Toggle split direction
-      "$mod, TAB, cyclenext," # Alt+Tab window switching
-      "$mod SHIFT, TAB, cyclenext, prev" # Alt+Shift+Tab reverse
+      "$mod, TAB, exec, ${../../scripts/wofi-window-switcher.sh}" # Alt+Tab window switching with visual menu
+      "$mod SHIFT, TAB, cyclenext, prev" # Alt+Shift+Tab quick reverse cycle
 
       # Focus movement with vim keys (AeroSpace style)
       "$mod, H, movefocus, l" # Focus left
